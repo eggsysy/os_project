@@ -1,0 +1,71 @@
+/* =========================================================
+   CYBERPUNK GRID THEME STYLES
+   Ensures the dark background and neon color scheme is applied.
+   ========================================================= */
+
+/* Font Import for Cyberpunk Aesthetic */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+body {
+    font-family: 'Roboto Mono', monospace; /* Monospace for tech feel */
+    background-color: #0d0d0d; /* Ultra dark background */
+    color: #e0e0e0; /* Light gray for main text */
+    /* Subtle grid background pattern */
+    background-image: url('data:image/svg+xml;utf8,<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="%231a1a1a" stroke-width="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)" /></svg>');
+}
+.container-os {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+#visualization-canvas {
+    border-radius: 0.25rem; /* Sharper corners */
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.4); /* Cyan neon glow */
+    background-color: #1a1a1a; /* Darker canvas background */
+    border: 2px solid #00ffff; /* Primary neon accent border */
+}
+.control-button {
+    transition: all 0.2s ease-in-out;
+    border-radius: 0.25rem;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+/* Light sweep effect on buttons */
+.control-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0,255,255,0.3), transparent);
+    transition: all 0.5s ease-in-out;
+    z-index: -1;
+}
+.control-button:hover::before {
+    left: 100%;
+}
+.control-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+}
+.input-field {
+    border: 1px solid #00ffff;
+    background-color: #2a2a2a;
+    color: #00ffff;
+    font-family: 'Roboto Mono', monospace;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+    border-radius: 0.15rem;
+}
+select.input-field {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    /* Custom SVG dropdown arrow */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="%2300FFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px;
+    padding-right: 25px;
+}

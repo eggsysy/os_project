@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS Memory Management Simulation</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Tailwind Configuration (defines Cyberpunk colors) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cyber-bg': '#0d0d0d',
+                        'cyber-card': '#1a1a1a',
+                        'cyber-text': '#e0e0e0',
+                        'neon-primary': '#00ffff', // Vibrant Cyan
+                        'neon-secondary': '#ff00ff', // Magenta
+                        'neon-success': '#00ff00',   // Green
+                        'neon-danger': '#ff3333',    // Red
+                        'neon-warning': '#ffff00',   // Yellow
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Load Custom CSS Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="text-cyber-text">
+
+    <div class="container-os">
+        <header class="text-center py-6 border-b border-[#2a2a2a] mb-6">
+            <h1 class="text-5xl font-bold text-neon-primary tracking-widest uppercase">
+                <span style="text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;">///</span> OS Memory Simulator <span style="text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;">///</span>
+            </h1>
+            <p class="text-cyber-text mt-3 font-light text-lg tracking-wide">
+                <span class="text-neon-secondary">//</span> Page Replacement Protocol Visualization <span class="text-neon-secondary">//</span>
+            </p>
+        </header>
+
+        <!-- Configuration & Controls -->
+        <div id="controls" class="bg-cyber-card p-6 rounded-md shadow-2xl mb-8 grid grid-cols-1 md:grid-cols-4 gap-4 items-end border border-neon-primary/50">
+            <!-- Algorithm Selection -->
+            <div>
+                <label for="algorithm" class="block text-sm font-medium text-neon-primary mb-1">ALGORITHM_SELECT</label>
+                <select id="algorithm" class="w-full p-2 rounded-sm input-field">
+                    <option value="FIFO">FIFO // First-In, First-Out</option>
+                    <option value="LRU">LRU // Least Recently Used</option>
+                    <option value="Optimal">OPTIMAL // Future Knowledge</option>
+                    <option value="Clock">CLOCK // Second Chance</option>
+                </select>
+            </div>
+            <!-- Frame Count -->
+            <div>
+                <label for="frameCount" class="block text-sm font-medium text-neon-primary mb-1">FRAME_COUNT [3-10]</label>
+                <input type="number" id="frameCount" value="4" min="3" max="10" class="w-full p-2 rounded-sm input-field">
+            </div>
+            <!-- Reference String -->
+            <div class="md:col-span-2">
+                <label for="refString" class="block text-sm font-medium text-neon-primary mb-1">REF_STRING <span class="text-cyber-text font-normal">// Space-separated page requests</span></label>
+                <input type="text" id="refString" value="1 2 3 4 1 5 6 1 2 3 7 8" class="w-full p-2 rounded-sm input-field placeholder-[#5a5a5a]" placeholder="e.g., 1 2 3 4 1 5 6 1 2 3 7 8">
+            </div>
+
+            <!-- Simulation Run Button -->
+            <div class="md:col-span-4 flex justify-between items-center mt-2">
+                <button onclick="runSimulation()" id="runBtn" class="control-button bg-neon-primary text-cyber-card font-bold py-3 px-8 text-lg rounded-sm shadow-lg hover:shadow-[0_0_25px_rgba(0,255,255,0.8)] transition duration-300 ease-in-out w-full md:w-auto transform hover:scale-105">
+                    INIT_SIMULATION (><) RUN // RESET
+                </button>
+            </div>
+        </div>
+
+        <!-- Simulation Visualization -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Controls and Stats Column -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Step Controls -->
+                <div class="bg-cyber-card p-6 rounded-md shadow-2xl border border-neon-primary/50">
+                    <h2 class="text-xl font-semibold mb-3 text-neon-secondary">// EXECUTION_CONTROLS</h2>
+                    <div class="flex space-x-3">
+                        <!-- Handlers are globally exposed by app.js -->
+                        <button onclick="stepSimulation(-1)" id="stepBackBtn" disabled class="control-button flex-1 bg-gray-700 hover:bg-gray-600 text-cyber-text font-semibold py-2 rounded-sm">
+                            &#9664; BACK
+                        </button>
+                        <button onclick="playPause()" id="playPauseBtn" disabled class="control-button flex-1 bg-neon-success hover:bg-green-600 text-cyber-card font-bold py-2 rounded-sm">
+                            PLAY
+                        </button>
+                        <button onclick="stepSimulation(1)" id="stepFwdBtn" disabled class="control-button flex-1 bg-neon-primary hover:bg-[#5affff] text-cyber-card font-bold py-2 rounded-sm">
+                            FWD &#9654;
+                        </button>
+                    </div>
+                    <div class="mt-4">
+                        <label for="speedSlider" class="block text-sm font-medium text-neon-primary mb-1">ANIM_SPEED: <span id="speedValue">1000</span>ms</label>
+                        <input type="range" id="speedSlider" min="100" max="2000" value="1000" step="100" oninput="updateSpeed(this.value)" class="w-full h-2 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer range-lg accent-neon-primary">
+                    </div>
+                </div>
+
+                <!-- Statistics Panel -->
+                <div class="bg-cyber-card p-6 rounded-md shadow-2xl border border-neon-primary/50">
+                    <h2 class="text-xl font-semibold mb-3 text-neon-secondary">// STATS_LOG</h2>
+                    <div class="space-y-2 text-lg font-mono">
+                        <p>TOTAL_REFERENCES: <span id="statTotalRefs" class="font-bold text-neon-primary">0</span></p>
+                        <p>CURRENT_STEP: <span id="statCurrentStep" class="font-bold text-neon-warning">0</span> / <span id="statTotalSteps">0</span></p>
+                        <p>PAGE_HITS: <span id="statHits" class="font-bold text-neon-success">0</span></p>
+                        <p>PAGE_FAULTS: <span id="statFaults" class="font-bold text-neon-danger">0</span></p>
+                        <p>HIT_RATIO: <span id="statHitRatio" class="font-bold text-cyber-text">0.00%</span></p>
+                    </div>
+                </div>
+
+                <!-- Current Action -->
+                <div class="bg-cyber-card p-6 rounded-md shadow-2xl border border-neon-primary/50">
+                    <h2 class="text-xl font-semibold mb-3 text-neon-secondary">// CURRENT_ACTION</h2>
+                    <p class="text-xl font-bold font-mono" id="currentAction">INIT // AWAITING COMMAND</p>
+                </div>
+            </div>
+
+            <!-- Canvas Column -->
+            <div class="lg:col-span-2">
+                <canvas id="visualization-canvas" width="800" height="600" class="w-full h-auto"></canvas>
+                <div class="mt-4 bg-cyber-card p-4 rounded-md shadow-2xl border border-neon-primary/50">
+                    <h3 class="text-lg font-semibold text-neon-secondary mb-2">// REF_STRING_TRACE</h3>
+                    <div id="refStringTrace" class="flex flex-wrap gap-2 text-sm font-mono">
+                        <!-- Trace elements will be injected here by app.js -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Export Functionality Placeholder -->
+        <div class="mt-8 pt-4 border-t border-[#2a2a2a] text-center">
+            <button onclick="saveCanvasAsImage()" class="control-button bg-gray-700 hover:bg-gray-600 text-cyber-text font-semibold py-2 px-6 rounded-sm">
+                (>) DOWNLOAD_SNAPSHOT // CANVAS
+            </button>
+        </div>
+    </div>
+
+    <!-- Load Application Logic as a Module -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
