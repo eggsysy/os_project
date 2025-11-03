@@ -4,7 +4,8 @@ An interactive, web-based tool designed to visualize core operating system memor
 
 Live Demo:
 
---link
+You can view the live simulation here:
+https://eggsysy.github.io/os_project/
 
 Features
 
